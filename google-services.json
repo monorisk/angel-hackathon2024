@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "277321093290",
+    "project_id": "chupin-angelhack2024",
+    "storage_bucket": "chupin-angelhack2024.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:277321093290:android:b2ce400a18868b5efc00d3",
+        "android_client_info": {
+          "package_name": "org.chupin.tech"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBUDkRGz38Gyhye8ZBMA166XpELB1mQ5I8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
