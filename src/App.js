@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {BackHandler, Platform, StyleSheet, Text, View, Button} from 'react-native';
+import {BackHandler, Platform, StyleSheet, Text, View, Button, ImageBackground} from 'react-native';
 import _ from "lodash";
 import WebView from "react-native-webview";
 import styled from 'styled-components/native';
@@ -16,9 +16,11 @@ const KEY_COLLECT_ID = 'collectId'
 
 const LOCATION_TASK_NAME = 'background-location-task';
 
-const EVENT_TYPE_LOCATION = 'locationEvent';
+// local
+// const DOMAIN = "http://172.18.6.253:8080"
 
-const DOMAIN = "http://172.18.6.253:8080"
+// dev
+const DOMAIN = "http://175.106.98.14:8080"
 
 Notifications.setNotificationHandler({
     handleNotification: async () => ({
@@ -57,7 +59,6 @@ const sendLocation = async (location, background) => {
     }
 
     const collectId = Number(rawCollectId)
-    // const collectId = 1
 
     const refinedLocation = {
         userId: userId,
@@ -73,35 +74,11 @@ const sendLocation = async (location, background) => {
     axios.post(`${DOMAIN}/api/v1/user-collecting`, refinedLocation);
 }
 
-// const registerToken = async (token) => {
-//     const userId = await AsyncStorage.getItem(KEY_USER_ID);
-//     if (!userId) {
-//         console.log("registerToken noUserId");
-//         return;
-//     }
-//
-//     // try {
-//     //     await axios.post(`${DOMAIN}/api/token`, {'token': token}, {
-//     //         headers: {
-//     //             "Cookie": `userId=${userId}`
-//     //         }
-//     //     });
-//     //     console.log("registerToken success");
-//     // } catch (e) {
-//     //     console.log(`error response: ${e}`)
-//     // }
-// }
-
 export default function App() {
     const [userId, setUserId] = useState('')
     const [inputUserId, setInputUserId] = useState('')
-    // const [channels, setChannels] = useState([]);
-    // const [expoPushToken, setExpoPushToken] = useState('');
-    const [notification, setNotification] = useState(undefined);
 
     const webViewRef = useRef(null);
-    const notificationListener = useRef();
-    const responseListener = useRef();
 
     const _initUserId = async () => {
         const currentUserId = await AsyncStorage.getItem(KEY_USER_ID);
@@ -160,7 +137,7 @@ export default function App() {
 
         if (parsedEvent?.type === 'startCollect') {
             const collectId = parsedEvent.payload.id;
-            console.log(`_webViewEventHandler startCollect request: ${collectId}`)
+            console.log(`_webViewEventHandler startCollect request: ${parsedEvent.payload.id}`)
             await AsyncStorage.setItem(KEY_COLLECT_ID, JSON.stringify(collectId))
             return;
         }
@@ -202,96 +179,15 @@ export default function App() {
         }
     };
 
-    // const _registerForPushNotificationsAsync = async () => {
-    //     let token;
-    //
-    //     await registerToken("token called");
-    //
-    //     if (Platform.OS === 'android') {
-    //         await registerToken("163");
-    //         await Notifications.setNotificationChannelAsync('default', {
-    //             name: 'default',
-    //             importance: Notifications.AndroidImportance.MAX,
-    //             vibrationPattern: [250],
-    //             lightColor: '#FF231F7C'
-    //         });
-    //         await registerToken("170");
-    //     }
-    //
-    //     if (Device.isDevice) {
-    //         await registerToken("174");
-    //         const {status: existingStatus} = await Notifications.getPermissionsAsync()
-    //         let finalStatus = existingStatus
-    //
-    //         if (existingStatus !== 'granted') {
-    //             const {status} = await Notifications.requestPermissionsAsync()
-    //             finalStatus = status
-    //         }
-    //
-    //         if (finalStatus !== 'granted') {
-    //             alert('Failed to get push token for push notification!')
-    //             return
-    //         }
-    //
-    //         try {
-    //             await registerToken("189");
-    //             const projectId = Constants?.easConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId
-    //             if (!projectId) {
-    //                 throw new Error('Project ID does not exist')
-    //             }
-    //
-    //             token = (await Notifications.getExpoPushTokenAsync({projectId})).data
-    //             console.log(`token: ${token}`)
-    //         } catch (e) {
-    //             token = `${e}`
-    //         }
-    //
-    //         await registerToken(token)
-    //     } else {
-    //         await registerToken("token else!!");
-    //         alert('Must use physical device for push notification.')
-    //     }
-    // }
-
-    // const _initPushToken = async () => {
-    //     try {
-    //         await _registerForPushNotificationsAsync();
-    //     } catch (e) {
-    //         alert(`useEffect _registerForPushNotificationsAsync error ${JSON.stringify(e)}`)
-    //         registerToken(`useEffect _registerForPushNotificationsAsync error ${JSON.stringify(e)}`)
-    //         console.error(`useEffect _registerForPushNotificationsAsync error. ${JSON.stringify(e)}`);
-    //     }
-    // }
-
     useEffect(() => {
         _initUserId();
-        // registerToken('before reqPermissions');
         _requestPermissions();
-        // registerToken('after reqPermissions');
-        // _initPushToken();
-        // registerToken('after initPush');
 
         if (Platform.OS === 'android') {
-            // Notifications.getNotificationChannelAsync().then(value => setChannels(value ?? []));
-            //
-            // notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
-            //     console.log(`onNotification notification: ${JSON.stringify(notification)}`);
-            //     registerToken(notification)
-            // });
-            //
-            // responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-            //     console.log(`OnNotificationResponse response: ${JSON.stringify(response)}`);
-            //     registerToken(notification)
-            // });
-
             BackHandler.addEventListener('hardwareBackPress', _onAndroidBackPress);
 
             return () => {
                 BackHandler.removeEventListener('hardwareBackPress', _onAndroidBackPress);
-                // notificationListener.current &&
-                // Notifications.removeNotificationSubscription(notificationListener.current);
-                // responseListener.current &&
-                // Notifications.removeNotificationSubscription(responseListener.current);
             };
         }
     }, []);
@@ -347,4 +243,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
+    image: {
+        flex: 1,
+        resizeMode: 'cover',
+        justifyContent: 'center',
+    }
 });
